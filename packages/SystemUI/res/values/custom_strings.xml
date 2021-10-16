@@ -15,4 +15,10 @@
     <string name="status_bar_hd_calling">HD calling (VoLTE/VoNR)</string>
     <!-- Name of the VoWiFi status bar icon. -->
     <string name="status_bar_vowifi">Wi-Fi calling (VoWiFi)</string>
+
+    <!-- Sound QS Tile -->
+    <string name="quick_settings_sound_label">Sound</string>
+    <string name="quick_settings_sound_ring">Ring</string>
+    <string name="quick_settings_sound_vibrate">Vibrate</string>
+    <string name="quick_settings_sound_mute">Mute</string>
 </resources>
