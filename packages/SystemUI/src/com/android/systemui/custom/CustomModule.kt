@@ -27,6 +27,8 @@ import com.android.systemui.qs.tiles.AODTile
 import com.android.systemui.qs.tiles.UsbTetherTile
 import com.android.systemui.qs.tiles.PowerShareTile
 
+import com.android.systemui.qs.tiles.SoundTile
+
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -87,4 +89,10 @@ interface CustomModule {
     @IntoMap
     @StringKey(AutoBrightnessTile.TILE_SPEC)
     fun bindAutoBrightnessTile(autobrightnessTile: AutoBrightnessTile): QSTileImpl<*>
+
+    /** Inject SoundTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(SoundTile.TILE_SPEC)
+    fun bindSoundTile(soundTile: SoundTile): QSTileImpl<*>
 }
