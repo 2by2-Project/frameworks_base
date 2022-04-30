@@ -6618,6 +6618,11 @@ public final class Settings {
         public static final String NAVBAR_LONG_PRESS_GESTURE = "navbar_long_press_gesture";
 
         /**
+         * @hide
+         */
+        public static final String QS_TRANSPARENCY = "qs_transparency";
+
+        /**
          * These are all public system settings
          *
          * @hide
