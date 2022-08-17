@@ -7,4 +7,7 @@
 
     <!-- Name of a special font family to use for headlines. For theming purpose. -->
     <string name="config_headlineFontFamilySpecial" translatable="false">@string/config_headlineFontFamily</string>
+
+    <!-- Whether to cancel fingerprint operation if not idle -->
+    <bool name="config_fpCancelIfNotIdle">false</bool>
 </resources>
