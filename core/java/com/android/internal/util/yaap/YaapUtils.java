@@ -18,6 +18,7 @@ package com.android.internal.util.yaap;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.input.InputManager;
 import android.hardware.Sensor;
@@ -43,6 +44,24 @@ public class YaapUtils {
 
     public static final String INTENT_SCREENSHOT = "action_handler_screenshot";
     public static final String INTENT_REGION_SCREENSHOT = "action_handler_region_screenshot";
+
+    public static boolean isPackageInstalled(Context context, String packageName, boolean ignoreState) {
+        if (packageName != null) {
+            try {
+                PackageInfo pi = context.getPackageManager().getPackageInfo(packageName, 0);
+                if (!pi.applicationInfo.enabled && !ignoreState) {
+                    return false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isPackageInstalled(Context context, String packageName) {
+        return isPackageInstalled(context, packageName, true);
+    }
 
     public static void switchScreenOff(Context ctx) {
         PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
