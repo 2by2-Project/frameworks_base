@@ -149,6 +149,9 @@ class MobileIconViewModelTest : SysuiTestCase() {
                 iconsInteractor.defaultMobileIconGroup,
                 iconsInteractor.isDefaultConnectionFailed,
                 iconsInteractor.isForceHidden,
+                iconsInteractor.isRoamingForceHidden,
+                iconsInteractor.isMobileHdForceHidden,
+                iconsInteractor.isVoWifiForceHidden,
                 repository,
                 context,
                 MobileIconCarrierIdOverridesFake()
