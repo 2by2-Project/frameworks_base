@@ -269,10 +269,12 @@ public class TunerServiceImpl extends TunerService {
         } else {
             uri = Settings.Secure.getUriFor(key);
         }
-        if (!mListeningUris.containsKey(uri)) {
-            mListeningUris.put(uri, key);
-            mContentResolver.registerContentObserver(uri, false, mObserver,
-                    mCurrentUser);
+        synchronized (this) {
+            if (!mListeningUris.containsKey(uri)) {
+                mListeningUris.put(uri, key);
+                mContentResolver.registerContentObserver(uri, false, mObserver,
+                        mCurrentUser);
+            }
         }
         // Send the first state.
         String value = DejankUtils.whitelistIpcs(() -> getValue(key));
