@@ -51,6 +51,9 @@ public class PropImitationHooks {
     private static final Boolean sDisableKeyAttestationBlock = SystemProperties.getBoolean(
             "persist.sys.pihooks.disable.gms_key_attestation_block", false);
 
+    private static final Boolean sEnablePhotosSpoof = SystemProperties.getBoolean(
+            "persist.sys.pihooks.enable.photos_spoof", false);
+
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
@@ -103,7 +106,7 @@ public class PropImitationHooks {
         sIsPixelDevice = Build.MANUFACTURER.equals("Google") && Build.MODEL.contains("Pixel");
         sIsGms = packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_UNSTABLE);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
-        sIsPhotos = packageName.equals(PACKAGE_GPHOTOS);
+        sIsPhotos = packageName.equals(PACKAGE_GPHOTOS) && sEnablePhotosSpoof;
 
         /* Set Certified Properties for GMSCore
          * Set Pixel XL Properties for Google Photos
