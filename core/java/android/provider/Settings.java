@@ -6611,6 +6611,13 @@ public final class Settings {
         public static final String LOCK_GESTURE_STATUS = "lock_gesture_status";
 
         /**
+         * Whether long press on navbar gesture is enabled
+         * @hide
+         */
+        @Readable
+        public static final String NAVBAR_LONG_PRESS_GESTURE = "navbar_long_press_gesture";
+
+        /**
          * These are all public system settings
          *
          * @hide
