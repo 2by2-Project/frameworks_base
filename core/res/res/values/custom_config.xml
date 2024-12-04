@@ -125,6 +125,9 @@
     <!-- Name of a font family to use as regular font. For theming purpose. -->
     <string name="config_regularFontFamily" translatable="false">sans-serif-regular</string>
 
+    <!-- Name of a font family to use as special font. For theming purpose. -->
+    <string name="config_headlineFontFamilySpecial">@string/config_headlineFontFamily</string>
+
     <!-- PowerOffAlarmService -->
     <bool name="config_powerOffAlarmEnabled">false</bool>
 
