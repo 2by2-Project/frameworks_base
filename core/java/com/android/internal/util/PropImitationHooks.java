@@ -35,6 +35,8 @@ import com.android.internal.R;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -63,9 +65,22 @@ public class PropImitationHooks {
 
     private static final String PROP_SECURITY_PATCH = "persist.sys.pihooks.security_patch";
     private static final String PROP_FIRST_API_LEVEL = "persist.sys.pihooks.first_api_level";
+    private static final String PROP_HOOKS = "persist.sys.pihooks_";
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
+
+    private static final Map<String, String> DEFAULT_VALUES = Map.of(
+        "BRAND", "google",
+        "MANUFACTURER", "Google",
+        "DEVICE", "barbet",
+        "FINGERPRINT", "google/barbet/barbet:14/AP2A.240805.005.S4/12281092:user/release-keys",
+        "MODEL", "Pixel 5a",
+        "PRODUCT", "barbet",
+        "DEVICE_INITIAL_SDK_INT", "30",
+        "SECURITY_PATCH", "2024-08-05",
+        "ID", "AP2A.240805.005.S4"
+    );
 
     private static final Set<String> sPixelFeatures = Set.of(
         "PIXEL_2017_PRELOAD",
@@ -161,11 +176,6 @@ public class PropImitationHooks {
             return;
         }
 
-        if (sCertifiedProps.length == 0) {
-            dlog("Certified props are not set");
-            return;
-        }
-
         final boolean was = isGmsAddAccountActivityOnTop();
         final TaskStackListener taskStackListener = new TaskStackListener() {
             @Override
@@ -180,7 +190,12 @@ public class PropImitationHooks {
         };
         if (!was) {
             dlog("Spoofing build for GMS");
-            setCertifiedProps();
+            if (sCertifiedProps.length == 0) {
+                dlog("Certified props are not set");
+                setCertifiedPropsBySysProps();
+            } else {
+                setCertifiedProps();
+            }
         } else {
             dlog("Skip spoofing build for GMS, because GmsAddAccountActivityOnTop");
         }
@@ -204,6 +219,14 @@ public class PropImitationHooks {
         setSystemProperty(PROP_SECURITY_PATCH, Build.VERSION.SECURITY_PATCH);
         setSystemProperty(PROP_FIRST_API_LEVEL,
                 Integer.toString(Build.VERSION.DEVICE_INITIAL_SDK_INT));
+    }
+
+    private static void setCertifiedPropsBySysProps() {
+        for (Map.Entry<String, String> entry : DEFAULT_VALUES.entrySet()) {
+            String propKey = PROP_HOOKS + entry.getKey();
+            String value = SystemProperties.get(propKey);
+            setPropValue(entry.getKey(), value != null ? value : entry.getValue());
+        }
     }
 
     private static void setSystemProperty(String name, String value) {
