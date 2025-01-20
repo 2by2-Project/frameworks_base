@@ -106,6 +106,7 @@ genrule {
         ":Roboto",
         ":RobotoFlex",
         ":SourceSansPro",
+        ":sgl-sgr-sgm-fonts",  // 2by2 Additions
         ":noto-fonts",
     ],
     exclude_srcs: [
