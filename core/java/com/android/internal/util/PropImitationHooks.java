@@ -35,7 +35,6 @@ import com.android.internal.R;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,12 +55,33 @@ public class PropImitationHooks {
     private static final Boolean sEnablePhotosSpoof = SystemProperties.getBoolean(
             "persist.sys.pihooks.enable.photos_spoof", false);
 
+    private static final String PACKAGE_AIWALLPAPERS = "com.google.android.apps.aiwallpapers";
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
+    private static final String PACKAGE_ASI = "com.google.android.as";
+    private static final String PACKAGE_ASSISTANT = "com.google.android.apps.googleassistant";
+    private static final String PACKAGE_EMOJIWALLPAPER = "com.google.android.apps.emojiwallpaper";
+
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
-    private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
-    private static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
     private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
+    private static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
+
+    private static final String PACKAGE_NEXUSLAUNCHER = "com.google.android.apps.nexuslauncher";
+    private static final String PACKAGE_PIXELTHEMES = "com.google.android.apps.customization.pixel";
+    private static final String PACKAGE_PIXELWALLPAPER = "com.google.android.apps.wallpaper.pixel";
+    private static final String PACKAGE_LIVEWALLPAPER = "com.google.pixel.livewallpaper";
+    private static final String PACKAGE_SUBSCRIPTION_RED = "com.google.android.apps.subscriptions.red";
+    private static final String PACKAGE_VELVET = "com.google.android.googlequicksearchbox";
+    private static final String PACKAGE_WALLPAPER = "com.google.android.apps.wallpaper";
+    private static final String PACKAGE_WALLPAPEREFFECTS = "com.google.android.wallpaper.effects";
+
+    private static final String PROCESS_GMS_GAPPS = PACKAGE_GMS + ".gapps";
+    private static final String PROCESS_GMS_GSERVICE = PACKAGE_GMS + ".gservice";
+    private static final String PROCESS_GMS_LEARNING = PACKAGE_GMS + ".learning";
+    private static final String PROCESS_GMS_PERSISTENT = PACKAGE_GMS + ".persistent";
+    private static final String PROCESS_GMS_SEARCH = PACKAGE_GMS + ".search";
+    private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
+    private static final String PROCESS_GMS_UPDATE = PACKAGE_GMS + ".update";
 
     private static final String PROP_SECURITY_PATCH = "persist.sys.pihooks.security_patch";
     private static final String PROP_FIRST_API_LEVEL = "persist.sys.pihooks.first_api_level";
@@ -70,33 +90,87 @@ public class PropImitationHooks {
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
-    private static final Map<String, String> DEFAULT_VALUES = Map.of(
-        "BRAND", "google",
-        "MANUFACTURER", "Google",
-        "DEVICE", "barbet",
-        "FINGERPRINT", "google/barbet/barbet:14/AP2A.240805.005.S4/12281092:user/release-keys",
-        "MODEL", "Pixel 5a",
-        "PRODUCT", "barbet",
-        "DEVICE_INITIAL_SDK_INT", "30",
-        "SECURITY_PATCH", "2024-08-05",
-        "ID", "AP2A.240805.005.S4"
+    private static final Map<String, String> sPixelNineProps = Map.of(
+            "PRODUCT", "caiman",
+            "DEVICE", "caiman",
+            "HARDWARE", "caiman",
+            "MANUFACTURER", "Google",
+            "BRAND", "google",
+            "MODEL", "Pixel 9 Pro",
+            "ID", "AP4A.241205.013.C1",
+            "FINGERPRINT", "google/caiman/caiman:15/AP4A.241205.013.C1/12657666:user/release-keys"
+    );
+
+    private static final Map<String, String> sPixelFiveProps = Map.of(
+            "PRODUCT", "barbet",
+            "DEVICE", "barbet",
+            "HARDWARE", "barbet",
+            "MANUFACTURER", "Google",
+            "BRAND", "google",
+            "MODEL", "Pixel 5a",
+            "ID", "AP2A.240805.005.S4",
+            "FINGERPRINT", "google/barbet/barbet:14/AP2A.240805.005.S4/12281092:user/release-keys"
+    );
+
+    private static final Map<String, String> sPixelTabletProps = Map.of(
+            "PRODUCT", "tangorpro",
+            "DEVICE", "tangorpro",
+            "HARDWARE", "tangorpro",
+            "MANUFACTURER", "Google",
+            "BRAND", "google",
+            "MODEL", "Pixel Tablet",
+            "ID", "AP4A.241205.013",
+            "FINGERPRINT", "google/tangorpro/tangorpro:15/AP4A.241205.013/12621605:user/release-keys"
+    );
+
+    private static final Map<String, String> sPixelXLProps = Map.of(
+            "PRODUCT", "marlin",
+            "DEVICE", "marlin",
+            "HARDWARE", "marlin",
+            "MANUFACTURER", "Google",
+            "BRAND", "google",
+            "MODEL", "Pixel XL",
+            "ID", "QP1A.191005.007.A3",
+            "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
+    );
+
+    private static final Set<String> sNexusFeatures = Set.of(
+            "NEXUS_PRELOAD",
+            "nexus_preload",
+            "GOOGLE_BUILD",
+            "GOOGLE_EXPERIENCE",
+            "PIXEL_EXPERIENCE"
     );
 
     private static final Set<String> sPixelFeatures = Set.of(
-        "PIXEL_2017_PRELOAD",
-        "PIXEL_2018_PRELOAD",
-        "PIXEL_2019_MIDYEAR_PRELOAD",
-        "PIXEL_2019_PRELOAD",
-        "PIXEL_2020_EXPERIENCE",
-        "PIXEL_2020_MIDYEAR_EXPERIENCE",
-        "PIXEL_EXPERIENCE"
+            "PIXEL_2017_EXPERIENCE",
+            "PIXEL_2017_PRELOAD",
+            "PIXEL_2018_EXPERIENCE",
+            "PIXEL_2018_PRELOAD",
+            "PIXEL_2019_EXPERIENCE",
+            "PIXEL_2019_MIDYEAR_EXPERIENCE",
+            "PIXEL_2019_MIDYEAR_PRELOAD",
+            "PIXEL_2019_PRELOAD",
+            "PIXEL_2020_EXPERIENCE",
+            "PIXEL_2020_MIDYEAR_EXPERIENCE",
+            "PIXEL_2021_MIDYEAR_EXPERIENCE"
+    );
+
+    private static final Set<String> sTensorFeatures = Set.of(
+            "PIXEL_2021_EXPERIENCE",
+            "PIXEL_2022_EXPERIENCE",
+            "PIXEL_2022_MIDYEAR_EXPERIENCE",
+            "PIXEL_2023_EXPERIENCE",
+            "PIXEL_2023_MIDYEAR_EXPERIENCE",
+            "PIXEL_2024_EXPERIENCE",
+            "PIXEL_2024_MIDYEAR_EXPERIENCE"
     );
 
     private static volatile String[] sCertifiedProps;
     private static volatile String sStockFp, sNetflixModel;
 
     private static volatile String sProcessName;
-    private static volatile boolean sIsPixelDevice, sIsGms, sIsFinsky, sIsPhotos;
+    private static volatile boolean sIsGms, sIsFinsky, sIsPhotos;
 
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
@@ -118,35 +192,76 @@ public class PropImitationHooks {
         sNetflixModel = res.getString(R.string.config_netflixSpoofModel);
 
         sProcessName = processName;
-        sIsPixelDevice = Build.MANUFACTURER.equals("Google") && Build.MODEL.contains("Pixel");
         sIsGms = packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_UNSTABLE);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
-        sIsPhotos = packageName.equals(PACKAGE_GPHOTOS) && sEnablePhotosSpoof;
+        sIsPhotos = packageName.equals(PACKAGE_GPHOTOS);
 
-        /* Set Certified Properties for GMSCore
-         * Set Pixel XL Properties for Google Photos
-         * Set Stock Fingerprint for ARCore
+        /* Set certified properties for GMSCore
+         * Set stock fingerprint for ARCore
+         * Set Pixel 8 Pro for Google, ASI and GMS device configurator
+         * Set Pixel XL for Google Photos
          * Set custom model for Netflix
          */
-        if (sIsGms) {
-            setCertifiedPropsForGms();
-        } else if (sIsPhotos) {
-            dlog("Setting model to Pixel XL for Google Photos");
-            setPropValue("BRAND", "google");
-            setPropValue("MANUFACTURER", "Google");
-            setPropValue("DEVICE", "marlin");
-            setPropValue("PRODUCT", "marlin");
-            setPropValue("HARDWARE", "marlin");
-            setPropValue("MODEL", "Pixel XL");
-            setPropValue("ID", "QP1A.191005.007.A3");
-            setPropValue("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
-        } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
+
+        switch (processName) {
+            case PROCESS_GMS_UNSTABLE:
+                dlog("Setting certified props for: " + packageName + " process: " + processName);
+                setCertifiedPropsForGms();
+                return;
+            case PROCESS_GMS_PERSISTENT:
+            case PROCESS_GMS_GAPPS:
+            case PROCESS_GMS_GSERVICE:
+            case PROCESS_GMS_LEARNING:
+            case PROCESS_GMS_SEARCH:
+            case PROCESS_GMS_UPDATE:
+                dlog("Spoofing Pixel 5a for: " + packageName + " process: " + processName);
+                setProps(sPixelFiveProps);
+                return;
+        }
+
+        if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
-        } else if (!sNetflixModel.isEmpty() && packageName.equals(PACKAGE_NETFLIX)) {
-            dlog("Setting model to " + sNetflixModel + " for Netflix");
-            setPropValue("MODEL", sNetflixModel);
+            return;
         }
+
+        switch (packageName) {
+            case PACKAGE_AIWALLPAPERS:
+            case PACKAGE_ASSISTANT:
+            case PACKAGE_ASI:
+            case PACKAGE_EMOJIWALLPAPER:
+            case PACKAGE_GMS:
+            case PACKAGE_LIVEWALLPAPER:
+            case PACKAGE_NEXUSLAUNCHER:
+            case PACKAGE_PIXELTHEMES:
+            case PACKAGE_PIXELWALLPAPER:
+            case PACKAGE_SUBSCRIPTION_RED:
+            case PACKAGE_VELVET:
+            case PACKAGE_WALLPAPER:
+            case PACKAGE_WALLPAPEREFFECTS:
+                if (SystemProperties.get("ro.build.characteristics").equals("tablet")) {
+                    dlog("Spoofing Pixel Tablet for: " + packageName + " process: " + processName);
+                    setProps(sPixelTabletProps);
+                } else {
+                    dlog("Spoofing Pixel 9 Pro for: " + packageName + " process: " + processName);
+                    setProps(sPixelNineProps);
+                }
+                return;
+            case PACKAGE_GPHOTOS:
+                dlog("Spoofing Pixel XL for Google Photos");
+                setProps(sPixelXLProps);
+                return;
+            case PACKAGE_NETFLIX:
+                if (!sNetflixModel.isEmpty()) {
+                    dlog("Setting model to " + sNetflixModel + " for Netflix");
+                    setPropValue("MODEL", sNetflixModel);
+                }
+                return;
+        }
+    }
+
+    private static void setProps(Map<String, String> props) {
+        props.forEach(PropImitationHooks::setPropValue);
     }
 
     private static void setPropValue(String key, String value) {
@@ -222,7 +337,7 @@ public class PropImitationHooks {
     }
 
     private static void setCertifiedPropsBySysProps() {
-        for (Map.Entry<String, String> entry : DEFAULT_VALUES.entrySet()) {
+        for (Map.Entry<String, String> entry : sPixelFiveProps.entrySet()) {
             String propKey = PROP_HOOKS + entry.getKey();
             String value = SystemProperties.get(propKey);
             setPropValue(entry.getKey(), value != null ? value : entry.getValue());
@@ -287,10 +402,15 @@ public class PropImitationHooks {
     }
 
     public static boolean hasSystemFeature(String name, boolean has) {
-        if (sIsPhotos && !sIsPixelDevice && has
-                && sPixelFeatures.stream().anyMatch(name::contains)) {
-            dlog("Blocked system feature " + name + " for Google Photos");
-            has = false;
+        if (sIsPhotos) {
+            if (has && (sPixelFeatures.stream().anyMatch(name::contains)
+                    || sTensorFeatures.stream().anyMatch(name::contains))) {
+                dlog("Blocked system feature " + name + " for Google Photos");
+                has = false;
+            } else if (!has && sNexusFeatures.stream().anyMatch(name::contains)) {
+                dlog("Enabled system feature " + name + " for Google Photos");
+                has = true;
+            }
         }
         return has;
     }
