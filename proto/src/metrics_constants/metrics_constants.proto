@@ -7445,8 +7445,8 @@ message MetricsEvent {
     // Add new aosp constants above this line.
     // END OF AOSP CONSTANTS
 
-    // YASP
-    YASP = 10001;
+    // 2byTricks
+    CUSTOM_SETTINGS = 10001;
 
     // OPEN: Settings > Display > Full screen apps
     // OS: T

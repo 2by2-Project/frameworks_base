@@ -223,7 +223,7 @@ public class DataSwitchTile extends QSTileImpl<BooleanState> {
 
     @Override
     public int getMetricsCategory() {
-        return MetricsEvent.YASP;
+        return MetricsEvent.CUSTOM_SETTINGS;
     }
 
     /**
