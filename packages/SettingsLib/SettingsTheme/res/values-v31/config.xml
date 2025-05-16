@@ -17,4 +17,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <bool name="settingslib_config_icon_space_reserved">false</bool>
     <bool name="settingslib_config_allow_divider">false</bool>
+    <string name="settingslib_config_headlineFontFamilySpecial" translatable="false">@*android:string/config_headlineFontFamilySpecial</string>
 </resources>
