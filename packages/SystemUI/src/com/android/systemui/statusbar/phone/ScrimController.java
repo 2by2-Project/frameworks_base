@@ -949,7 +949,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
                 } else if (mClipsQsScrim) {
                     float behindFraction = getInterpolatedFraction();
                     behindFraction = (float) Math.pow(behindFraction, 0.8f);
-                    mBehindAlpha = 1;
+                    mBehindAlpha = mDefaultScrimAlpha;
                     mNotificationsAlpha = behindFraction * mDefaultScrimAlpha;
                 } else {
                     mBehindAlpha = mLargeScreenShadeInterpolator.getBehindScrimAlpha(
@@ -1003,7 +1003,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
             } else if (mClipsQsScrim) {
                 mNotificationsAlpha = behindAlpha;
                 mNotificationsTint = behindTint;
-                mBehindAlpha = 1;
+                mBehindAlpha = mDefaultScrimAlpha;
                 mBehindTint = Color.BLACK;
             } else {
                 mBehindAlpha = behindAlpha;
