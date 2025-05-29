@@ -65,7 +65,7 @@ import android.view.Window;
 import android.view.WindowManagerGlobal;
 
 import com.android.internal.content.ReferrerIntent;
-import com.android.internal.util.yaap.PixelPropsUtils;
+import com.android.internal.util.PropImitationHooks;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -121,8 +121,6 @@ public class Instrumentation {
     @IntDef({0, UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES,
             UiAutomation.FLAG_DONT_USE_ACCESSIBILITY})
     public @interface UiAutomationFlags {};
-
-    private static PixelPropsUtils mPixelPropsUtils = null;
 
     private final Object mSync = new Object();
     private ActivityThread mThread = null;
@@ -1358,10 +1356,7 @@ public class Instrumentation {
         Application app = getFactory(context.getPackageName())
                 .instantiateApplication(cl, className);
         app.attach(context);
-        PixelPropsUtils ppu = PixelPropsUtils.getInstance(context);
-        if (ppu != null) {
-            ppu.setProps(context.getPackageName());
-        }
+        PropImitationHooks.setProps(context);
         return app;
     }
     
@@ -1379,10 +1374,7 @@ public class Instrumentation {
             ClassNotFoundException {
         Application app = (Application)clazz.newInstance();
         app.attach(context);
-        PixelPropsUtils ppu = PixelPropsUtils.getInstance(context);
-        if (ppu != null) {
-            ppu.setProps(context.getPackageName());
-        }
+        PropImitationHooks.setProps(context);
         return app;
     }
 
