@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,6 +66,9 @@ public class PropImitationHooks {
     private static final Boolean sDisableKeyAttestationBlock = SystemProperties.getBoolean(
             "persist.sys.pihooks.disable.gms_key_attestation_block", false);
 
+    private static final Boolean sEnableGooglePhotosSpoof = SystemProperties.getBoolean(
+            "persist.sys.pixelprops.gphotos", true);
+
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
@@ -77,6 +81,17 @@ public class PropImitationHooks {
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
+
+    private static final Map<String, String> sPixelXLProps = Map.of(
+        "PRODUCT", "marlin",
+        "DEVICE", "marlin",
+        "HARDWARE", "marlin",
+        "MANUFACTURER", "Google",
+        "BRAND", "google",
+        "MODEL", "Pixel XL",
+        "ID", "QP1A.191005.007.A3",
+        "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
+    );
 
     private static final Set<String> sPixelFeatures = Set.of(
         "PIXEL_2017_PRELOAD",
@@ -130,6 +145,9 @@ public class PropImitationHooks {
         } else if (!sNetflixModel.isEmpty() && packageName.equals(PACKAGE_NETFLIX)) {
             dlog("Setting model to " + sNetflixModel + " for Netflix");
             setPropValue("MODEL", sNetflixModel);
+        } else if (sIsPhotos && sEnableGooglePhotosSpoof) {
+            dlog("Spoofing Pixel XL for Google Photos");
+            sPixelXLProps.forEach(PropImitationHooks::setPropValue);
         }
     }
 
