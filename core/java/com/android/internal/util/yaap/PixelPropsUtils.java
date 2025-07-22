@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.SystemProperties;
 import android.util.Log;
 
 import com.android.internal.R;
@@ -35,15 +36,28 @@ import java.util.Set;
 public final class PixelPropsUtils {
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
+    private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
     private static final String VERSION_PREFIX = "VERSION.";
 
     private final HashMap<String, Object> certifiedProps;
 
     private static volatile boolean sIsFinsky = false;
+    private static volatile boolean sIsPhotos = false;
     private static volatile boolean sIsEnabled = false;
 
     private static PixelPropsUtils sInstance = null;
+
+    private static final Map<String, String> sPixelXLProps = new HashMap<>() {{
+            put("PRODUCT", "marlin");
+            put("DEVICE", "marlin");
+            put("HARDWARE", "marlin");
+            put("MANUFACTURER", "Google");
+            put("BRAND", "google");
+            put("MODEL", "Pixel XL");
+            put("ID", "QP1A.191005.007.A3");
+            put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+    }};
 
     public static PixelPropsUtils getInstance(Context context) {
         if (sInstance == null) {
@@ -107,7 +121,15 @@ public final class PixelPropsUtils {
     }
 
     public void setProps(String packageName) {
-        if (packageName == null || !sIsEnabled) {
+        if (packageName == null) {
+            return;
+        }
+        sIsPhotos = packageName.equals(PACKAGE_GPHOTOS) && SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", true);
+        if (sIsPhotos) {
+            sPixelXLProps.forEach(PixelPropsUtils::setPropValue);
+            return;
+        }
+        if (!sIsEnabled) {
             return;
         }
         final String fp = (String) certifiedProps.get("FINGERPRINT");
