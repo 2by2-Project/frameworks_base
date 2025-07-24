@@ -55,8 +55,6 @@ import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.Log;
 
-import com.android.internal.util.custom.KeyboxImitationHooks;
-
 import libcore.util.EmptyArray;
 
 import java.math.BigInteger;
@@ -698,24 +696,9 @@ public abstract class AndroidKeyStoreKeyPairGeneratorSpi extends KeyPairGenerato
         try {
             KeyStoreSecurityLevel iSecurityLevel = mKeyStore.getSecurityLevel(securityLevel);
 
-            KeyMetadata metadata;
-            if (mSpec.getAttestationChallenge() != null &&
-                (KeyProperties.KEY_ALGORITHM_EC.equals(mJcaKeyAlgorithm) ||
-                 KeyProperties.KEY_ALGORITHM_RSA.equals(mJcaKeyAlgorithm))) {
-                metadata = KeyboxImitationHooks.generateKey(
-                    iSecurityLevel.getBinderInterface(),
-                    descriptor,
-                    constructKeyGenerationArguments()
-                );
-                if (metadata == null) {
-                    KeyboxImitationHooks.setFailFlag(true);
-                    metadata = iSecurityLevel.generateKey(descriptor, mAttestKeyDescriptor,
-                        constructKeyGenerationArguments(), flags, additionalEntropy);
-                }
-            } else {
-                metadata = iSecurityLevel.generateKey(descriptor, mAttestKeyDescriptor,
-                        constructKeyGenerationArguments(), flags, additionalEntropy);
-            }
+            KeyMetadata metadata = iSecurityLevel.generateKey(descriptor, mAttestKeyDescriptor,
+                    constructKeyGenerationArguments(), flags, additionalEntropy);
+
             AndroidKeyStorePublicKey publicKey =
                     AndroidKeyStoreProvider.makeAndroidKeyStorePublicKeyFromKeyEntryResponse(
                             descriptor, metadata, iSecurityLevel, mKeymasterAlgorithm);
