@@ -4330,6 +4330,11 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         return imePolicy;
     }
 
+    boolean forceDesktopMode() {
+        return ("VNC".equals(mDisplay.getName()) || mWmService.mForceDesktopModeOnExternalDisplays)
+            && !isDefaultDisplay && !isFreeformDisplay && !isPrivate();
+    }
+
     /** @see WindowManagerInternal#onToggleImeRequested */
     void onShowImeRequested() {
         if (mInputMethodWindow == null) {
@@ -5718,7 +5723,7 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      * also check {@link #isSystemDecorationsSupported()} to avoid breaking any security policy.
      */
     boolean isPublicSecondaryDisplayWithDesktopModeForceEnabled() {
-        if (!mWmService.mForceDesktopModeOnExternalDisplays || isDefaultDisplay || isPrivate() || isFreeformDisplay) {
+        if (!mWmService.mForceDesktopModeOnExternalDisplays || isDefaultDisplay || isPrivate() && !isFreeformDisplay) {
             return false;
         }
         // Desktop mode is not supported on virtual devices.

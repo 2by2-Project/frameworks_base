@@ -48,8 +48,7 @@ import android.system.keystore2.ResponseCode;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.KeyProviderManager;
-import com.android.internal.util.yaap.PixelPropsUtils;
+import com.android.internal.util.yaap.KeyProviderManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -195,17 +194,6 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
 
     @Override
     public Certificate[] engineGetCertificateChain(String alias) {
-        if (PixelPropsUtils.getIsEnabled() && !KeyProviderManager.isKeyboxAvailable()) {
-            if (PixelPropsUtils.getIsFinsky()) {
-                throw new UnsupportedOperationException("Blocking safetynet attestation for finsky");
-            }
-            for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-                if (ste.getClassName().contains("DroidGuard")) {
-                    throw new UnsupportedOperationException("Blocking safetynet attestation");
-                }
-            }
-        }
-
         KeyEntryResponse response = getKeyMetadata(alias);
 
         if (response == null || response.metadata.certificate == null) {
@@ -220,7 +208,8 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
         X509Certificate modLeaf = leaf;
         try {
             byte[] bytes = leaf.getEncoded();
-            if (bytes != null && bytes.length > 0) {
+            if (bytes != null && bytes.length > 0
+                && KeyProviderManager.isKeyboxAvailable()) {
                 int index = indexOf(bytes);
                 if (index != -1) {
                     bytes[index + 38] = 1;
