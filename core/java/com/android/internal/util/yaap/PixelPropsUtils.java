@@ -18,7 +18,6 @@ package com.android.internal.util.yaap;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.SystemProperties;
@@ -27,11 +26,9 @@ import android.util.Log;
 import com.android.internal.R;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 public final class PixelPropsUtils {
     private static final String PACKAGE_FINSKY = "com.android.vending";
@@ -42,8 +39,15 @@ public final class PixelPropsUtils {
 
     private final HashMap<String, Object> certifiedProps;
 
-    private static volatile boolean sIsFinsky = false;
     private static volatile boolean sIsPhotos = false;
+
+    private static final ArrayList<String> finskyProps = new ArrayList<>();
+    static {
+        finskyProps.add("FINGERPRINT");
+        finskyProps.add(VERSION_PREFIX + "SECURITY_PATCH");
+        finskyProps.add(VERSION_PREFIX + "DEVICE_INITIAL_SDK_INT");
+    }
+
     private static volatile boolean sIsEnabled = false;
 
     private static PixelPropsUtils sInstance = null;
@@ -141,9 +145,16 @@ public final class PixelPropsUtils {
             return;
         }
         Logger.d("Package = " + packageName);
-        sIsFinsky = packageName.equals(PACKAGE_FINSKY);
-        if (sIsFinsky || !packageName.equals(PACKAGE_GMS) ||
-                !PROCESS_GMS_UNSTABLE.equals(Application.getProcessName())) {
+        final boolean isFinsky = PACKAGE_FINSKY.equals(packageName);
+        if (!isFinsky && (!PACKAGE_GMS.equals(packageName) ||
+                !PROCESS_GMS_UNSTABLE.equals(Application.getProcessName()))) {
+            return;
+        }
+        if (isFinsky) {
+            certifiedProps.forEach((key, value) -> {
+                if (!finskyProps.contains(key)) return; // ≣ continue
+                PixelPropsUtils.setPropValue(key, value);
+            });
             return;
         }
         certifiedProps.forEach(PixelPropsUtils::setPropValue);
@@ -165,10 +176,6 @@ public final class PixelPropsUtils {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             Logger.e("Failed to set prop " + key, e);
         }
-    }
-
-    public static boolean getIsFinsky() {
-        return sIsFinsky;
     }
 
     public static boolean getIsEnabled() {

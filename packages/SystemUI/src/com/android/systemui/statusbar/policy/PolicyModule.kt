@@ -39,6 +39,7 @@ import com.android.systemui.qs.tiles.LocationTile
 import com.android.systemui.qs.tiles.MicrophoneToggleTile
 import com.android.systemui.qs.tiles.ModesDndTile
 import com.android.systemui.qs.tiles.ModesTile
+import com.android.systemui.qs.tiles.PeakRefreshTile
 import com.android.systemui.qs.tiles.PowerShareTile
 import com.android.systemui.qs.tiles.UiModeNightTile
 import com.android.systemui.qs.tiles.SoundTile
@@ -560,6 +561,11 @@ interface PolicyModule {
     @IntoMap
     @StringKey(PowerShareTile.TILE_SPEC)
     fun bindPowerShareTile(powerShareTile: PowerShareTile): QSTileImpl<*>
+
+    @Binds
+    @IntoMap
+    @StringKey(PeakRefreshTile.TILE_SPEC)
+    fun bindPeakRefreshTile(peakRefreshTile: PeakRefreshTile): QSTileImpl<*>
 
     /** Inject SoundTile into tileMap in QSModule */
     @Binds

@@ -144,6 +144,8 @@ final class KeyGestureController {
     @GuardedBy("mUserLock")
     private int mCurrentUserId = UserHandle.USER_SYSTEM;
 
+    private final boolean mScreenshotChordEnabledConfig;
+
     // Pending actions
     private boolean mPendingMetaAction;
     private boolean mPendingCapsLockToggle;
@@ -158,8 +160,10 @@ final class KeyGestureController {
     private int mSettingsKeyBehavior;
 
     // Settings behaviors
-    private int mRingerToggleChord = Settings.Secure.VOLUME_HUSH_OFF;
+    private String mRingerToggleChord = Settings.Secure.YAAP_VOLUME_HUSH_OFF;
     private int mPowerVolUpBehavior;
+    private boolean mScreenshotKeyGesture;
+    private boolean mPowerVolUpDownMute;
 
 
     // List of currently registered key gesture event listeners keyed by process pid
@@ -206,6 +210,8 @@ final class KeyGestureController {
         mDisplayManager = Objects.requireNonNull(mContext.getSystemService(DisplayManager.class));
         mInputDataStore = inputDataStore;
         mUserManagerInternal = LocalServices.getService(UserManagerInternal.class);
+        mScreenshotChordEnabledConfig = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_enableScreenshotChord);
         initBehaviors();
         initKeyCombinationRules();
     }
@@ -232,14 +238,22 @@ final class KeyGestureController {
 
     private void initBehaviorsFromSettings() {
         ContentResolver resolver = mContext.getContentResolver();
-        mRingerToggleChord = Settings.Secure.getIntForUser(resolver,
-                Settings.Secure.VOLUME_HUSH_GESTURE, Settings.Secure.VOLUME_HUSH_OFF,
-                UserHandle.USER_CURRENT);
+        mRingerToggleChord = Settings.Secure.getStringForUser(resolver,
+                Settings.Secure.VOLUME_HUSH_GESTURE, UserHandle.USER_CURRENT);
+        if (mRingerToggleChord == null) {
+            mRingerToggleChord = Settings.Secure.YAAP_VOLUME_HUSH_OFF;
+        }
 
         mPowerVolUpBehavior = Settings.Global.getInt(resolver,
                 Settings.Global.KEY_CHORD_POWER_VOLUME_UP,
                 mContext.getResources().getInteger(
                         com.android.internal.R.integer.config_keyChordPowerVolumeUp));
+        if (mScreenshotChordEnabledConfig) {
+            mScreenshotKeyGesture = Settings.Secure.getInt(resolver,
+                    Settings.Secure.SCREENSHOT_KEY_GESTURE_ENABLED, 1) == 1;
+        }
+        mPowerVolUpDownMute = Settings.Secure.getInt(resolver,
+                Settings.Secure.VOLUME_UP_DOWN_MUTE_GESTURE, 0) == 1;
     }
 
     private void initKeyCombinationRules() {
@@ -248,15 +262,21 @@ final class KeyGestureController {
         }
         // TODO(b/358569822): Handle Power, Back key properly since key combination gesture is
         //  captured here and rest of the Power, Back key behaviors are handled in PWM
-        final boolean screenshotChordEnabled = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_enableScreenshotChord);
 
-        if (screenshotChordEnabled) {
+        if (mScreenshotChordEnabledConfig) {
             mKeyCombinationManager.addRule(
                     new KeyCombinationManager.TwoKeysCombinationRule(KeyEvent.KEYCODE_VOLUME_DOWN,
                             KeyEvent.KEYCODE_POWER) {
                         @Override
+                        public boolean preCondition() {
+                            return mScreenshotKeyGesture;
+                        }
+
+                        @Override
                         public void execute() {
+                            if (!mScreenshotKeyGesture) {
+                                return;
+                            }
                             handleMultiKeyGesture(
                                     new int[]{KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_POWER},
                                     KeyGestureEvent.KEY_GESTURE_TYPE_SCREENSHOT_CHORD,
@@ -265,6 +285,9 @@ final class KeyGestureController {
 
                         @Override
                         public void cancel() {
+                            if (!mScreenshotKeyGesture) {
+                                return;
+                            }
                             handleMultiKeyGesture(
                                     new int[]{KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_POWER},
                                     KeyGestureEvent.KEY_GESTURE_TYPE_SCREENSHOT_CHORD,
@@ -301,25 +324,48 @@ final class KeyGestureController {
                         KeyEvent.KEYCODE_VOLUME_UP) {
                     @Override
                     public boolean preCondition() {
-                        return mAccessibilityShortcutController.isAccessibilityShortcutAvailable(
-                                mWindowManagerCallbacks.isKeyguardLocked(DEFAULT_DISPLAY));
+                        if (mAccessibilityShortcutController.isAccessibilityShortcutAvailable(
+                                mWindowManagerCallbacks.isKeyguardLocked(DEFAULT_DISPLAY))) {
+                            // a11y always takes precedence
+                            return true;
+                        }
+                        return mPowerVolUpDownMute;
                     }
 
                     @Override
                     public void execute() {
+                        int gestureType = getGestureType();
+                        if (gestureType == KeyGestureEvent.KEY_GESTURE_TYPE_UNSPECIFIED) {
+                            return;
+                        }
                         handleMultiKeyGesture(
                                 new int[]{KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP},
-                                KeyGestureEvent.KEY_GESTURE_TYPE_ACCESSIBILITY_SHORTCUT_CHORD,
-                                KeyGestureEvent.ACTION_GESTURE_START, 0);
+                                gestureType, KeyGestureEvent.ACTION_GESTURE_START, 0);
                     }
 
                     @Override
                     public void cancel() {
+                        int gestureType = getGestureType();
+                        if (gestureType == KeyGestureEvent.KEY_GESTURE_TYPE_UNSPECIFIED) {
+                            return;
+                        }
                         handleMultiKeyGesture(
                                 new int[]{KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP},
-                                KeyGestureEvent.KEY_GESTURE_TYPE_ACCESSIBILITY_SHORTCUT_CHORD,
-                                KeyGestureEvent.ACTION_GESTURE_COMPLETE,
+                                gestureType, KeyGestureEvent.ACTION_GESTURE_COMPLETE,
                                 KeyGestureEvent.FLAG_CANCELLED);
+                    }
+
+                    @KeyGestureEvent.KeyGestureType
+                    private int getGestureType() {
+                        if (mAccessibilityShortcutController.isAccessibilityShortcutAvailable(
+                                mWindowManagerCallbacks.isKeyguardLocked(DEFAULT_DISPLAY))) {
+                            // a11y always takes precedence
+                            return KeyGestureEvent.KEY_GESTURE_TYPE_ACCESSIBILITY_SHORTCUT_CHORD;
+                        }
+                        if (mPowerVolUpDownMute) {
+                            return KeyGestureEvent.KEY_GESTURE_TYPE_VOLUME_UP_DOWN_MUTE;
+                        }
+                        return KeyGestureEvent.KEY_GESTURE_TYPE_UNSPECIFIED;
                     }
                 });
 
@@ -333,7 +379,7 @@ final class KeyGestureController {
                     public boolean preCondition() {
                         switch (mPowerVolUpBehavior) {
                             case POWER_VOLUME_UP_BEHAVIOR_MUTE:
-                                return mRingerToggleChord != Settings.Secure.VOLUME_HUSH_OFF;
+                                return !mRingerToggleChord.equals(Settings.Secure.VOLUME_HUSH_OFF);
                             default:
                                 return true;
                         }
@@ -1415,6 +1461,12 @@ final class KeyGestureController {
             resolver.registerContentObserver(Settings.Global.getUriFor(
                             Settings.Global.KEY_CHORD_POWER_VOLUME_UP), false, this,
                     UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                            Settings.Secure.SCREENSHOT_KEY_GESTURE_ENABLED), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                            Settings.Secure.VOLUME_UP_DOWN_MUTE_GESTURE), false, this,
+                    UserHandle.USER_ALL);
         }
 
         @Override
@@ -1486,6 +1538,8 @@ final class KeyGestureController {
         ipw.println("mSettingsKeyBehavior = " + mSettingsKeyBehavior);
         ipw.println("mRingerToggleChord = " + mRingerToggleChord);
         ipw.println("mPowerVolUpBehavior = " + mPowerVolUpBehavior);
+        ipw.println("mScreenshotKeyGesture = "+ mScreenshotKeyGesture);
+        ipw.println("mPowerVolUpDownMute = " + mPowerVolUpDownMute);
         ipw.print("mKeyGestureEventListenerRecords = {");
         synchronized (mKeyGestureEventListenerRecords) {
             int size = mKeyGestureEventListenerRecords.size();

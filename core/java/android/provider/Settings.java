@@ -6788,6 +6788,13 @@ public final class Settings {
         public static final String GAMING_MODE_HIGH_TOUCH_RATE = "gaming_mode_high_touch_rate";
 
         /**
+         * Whether gaming mode toggles smooth display
+         * @hide
+         */
+        @Readable
+        public static final String GAMING_MODE_SMOOTH_DISPLAY = "gaming_mode_smooth_display";
+
+        /**
          * Apps gaming macro should automatically activate for
          * package name list delimeted by comma
          * @hide
@@ -14304,6 +14311,38 @@ public final class Settings {
          * @hide
          */
         public static final String UI_NIGHT_LIGHT_DIM_WALL_ACTIVATED = "ui_night_light_dim_wall_activated";
+
+        /**
+         * Whether screenshot gesture (power + volume down) is enabled
+         * @hide
+         */
+        public static final String SCREENSHOT_KEY_GESTURE_ENABLED = "screenshot_key_gesture_enabled";
+
+        /**
+         * Whether to mute media when pressing both volume keys
+         * a11y shortcut takes precedence
+         * @hide
+         */
+        public static final String VOLUME_UP_DOWN_MUTE_GESTURE = "volume_up_down_mute_gesture";
+
+        /**
+         * Saves last volume value when {@link #VOLUME_UP_DOWN_MUTE_GESTURE} is activated
+         * A negative value would mean it's currently inactive
+         * Not for backup, for shutdown persistence.
+         * @hide
+         */
+        public static final String VOLUME_UP_DOWN_MUTE_GESTURE_LAST_VOLUME = "volume_up_down_mute_gesture_last_volume";
+
+        /**
+         * Whether to wake / doze the screen on chargin events (plug & unplug)
+         * Default should follow {@link com.android.internal.R.bool.config_unplugTurnsOnScreen}
+         * Possible values:
+         * 0 = Disabled
+         * 1 = Fully wake
+         * 2 = Pulse doze if available
+         * @hide
+         */
+        public static final String WAKE_ON_CHARGE = "wake_on_charge";
 
         /**
          * These entries are considered common between the personal and the managed profile,
