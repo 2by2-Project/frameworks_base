@@ -30,6 +30,7 @@ import com.android.systemui.qs.tiles.AlarmTile
 import com.android.systemui.qs.tiles.AODTile
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.CameraToggleTile
+import com.android.systemui.qs.tiles.DcDimTile
 import com.android.systemui.qs.tiles.DndTile
 import com.android.systemui.qs.tiles.FlashlightTile
 import com.android.systemui.qs.tiles.FlashlightStrengthTile
@@ -572,4 +573,9 @@ interface PolicyModule {
     @IntoMap
     @StringKey(SoundTile.TILE_SPEC)
     fun bindSoundTile(soundTile: SoundTile): QSTileImpl<*>
+
+    @Binds
+    @IntoMap
+    @StringKey(DcDimTile.TILE_SPEC)
+    fun bindDcDimTile(dcDimTile: DcDimTile): QSTileImpl<*>
 }

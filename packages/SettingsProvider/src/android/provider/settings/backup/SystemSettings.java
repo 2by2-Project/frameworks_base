@@ -157,6 +157,7 @@ public class SystemSettings {
                 Settings.System.GAMING_MODE_THREE_FINGER,
                 Settings.System.GAMING_MODE_TOUCH_SENSITIVITY,
                 Settings.System.GAMING_MODE_HIGH_TOUCH_RATE,
+                Settings.System.GAMING_MODE_LTPO_FEATURES,
                 Settings.System.GAMING_MODE_SMOOTH_DISPLAY,
                 Settings.System.GAMING_MODE_APPS,
                 Settings.System.NOTIFICATION_HEADERS,
@@ -194,6 +195,8 @@ public class SystemSettings {
                 Settings.System.LOCKSCREEN_WEATHER_PROVIDER,
                 Settings.System.LOCKSCREEN_WEATHER_LOCATION,
                 Settings.System.LOCKSCREEN_WEATHER_TEXT,
+                Settings.System.LOCKSCREEN_WEATHER_WIND_INFO,
+                Settings.System.LOCKSCREEN_WEATHER_HUMIDITY_INFO,
                 Settings.System.LOCKSCREEN_WEATHER_CLICK_UPDATES,
                 Settings.System.QS_WIFI_AUTO_ON,
                 Settings.System.QS_BT_AUTO_ON,
@@ -204,7 +207,8 @@ public class SystemSettings {
                 Settings.System.RAMPING_RINGER_DURATION,
                 Settings.System.RAMPING_RINGER_START_VOLUME,
                 Settings.System.RAMPING_RINGER_NO_SILENCE,
-                Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON
+                Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON,
+                Settings.System.DC_DIM_ENABLED
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);

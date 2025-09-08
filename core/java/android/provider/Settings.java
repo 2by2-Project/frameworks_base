@@ -6788,6 +6788,13 @@ public final class Settings {
         public static final String GAMING_MODE_HIGH_TOUCH_RATE = "gaming_mode_high_touch_rate";
 
         /**
+         * Whether gaming mode toggles ltpo features
+         * @hide
+         */
+        @Readable
+        public static final String GAMING_MODE_LTPO_FEATURES = "gaming_mode_ltpo_features";
+
+        /**
          * Whether gaming mode toggles smooth display
          * @hide
          */
@@ -7081,6 +7088,18 @@ public final class Settings {
         public static final String LOCKSCREEN_WEATHER_TEXT = "lockscreen_weather_text";
 
         /**
+         * Wind text for OmniJaws
+         * @hide
+         */
+        public static final String LOCKSCREEN_WEATHER_WIND_INFO = "lockscreen_weather_wind_info";
+
+        /**
+         * Humidity text for OmniJaws
+         * @hide
+         */
+        public static final String LOCKSCREEN_WEATHER_HUMIDITY_INFO = "lockscreen_weather_humidity_info";
+
+        /**
          * Whether clicking on the weather view updates the weather instead of launching the activity
          * @hide
          */
@@ -7263,6 +7282,12 @@ public final class Settings {
          * @hide
          */
         public static final String NOTIFICATION_SOUND_VIB_SCREEN_ON = "notification_sound_vib_screen_on";
+
+        /**
+         * Whether DC Dimming is on
+         * @hide
+         */
+        public static final String DC_DIM_ENABLED = "dc_dim_enabled";
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
@@ -14180,6 +14205,12 @@ public final class Settings {
          * @hide
          */
         public static final String HIGH_TOUCH_RATE_ENABLED = "high_touch_rate_enabled";
+
+        /**
+         * Whether to enable ltpo features
+         * @hide
+         */
+        public static final String LTPO_FEATURES_ENABLED = "ltpo_features_enabled";
 
         /**
          * Whether to enable screen off udfps
