@@ -211,7 +211,8 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
         X509Certificate modLeaf = leaf;
         try {
             byte[] bytes = leaf.getEncoded();
-            if (bytes != null && bytes.length > 0) {
+            if (bytes != null && bytes.length > 0
+                && KeyProviderManager.isKeyboxAvailable()) {
                 int index = indexOf(bytes);
                 if (index != -1) {
                     bytes[index + 38] = 1;
