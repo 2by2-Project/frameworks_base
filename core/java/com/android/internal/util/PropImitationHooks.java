@@ -63,9 +63,6 @@ public class PropImitationHooks {
     private static final Boolean sDisableGmsProps = SystemProperties.getBoolean(
             "persist.sys.pihooks.disable.gms_props", false);
 
-    private static final Boolean sDisableKeyAttestationBlock = SystemProperties.getBoolean(
-            "persist.sys.pihooks.disable.gms_key_attestation_block", false);
-
     private static final Boolean sEnableGooglePhotosSpoof = SystemProperties.getBoolean(
             "persist.sys.pixelprops.gphotos", true);
 
@@ -301,25 +298,6 @@ public class PropImitationHooks {
     private static boolean isCallerSafetyNet() {
         return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
                 .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
-    }
-
-    public static void onEngineGetCertificateChain() {
-        if (sDisableKeyAttestationBlock) {
-            dlog("Key attestation blocking is disabled by user");
-            return;
-        }
-
-        // If a keybox is found, don't block key attestation
-        if (KeyProviderManager.isKeyboxAvailable()) {
-            dlog("Key attestation blocking is disabled because a keybox is defined to spoof");
-            return;
-        }
-
-        // Check stack for SafetyNet or Play Integrity
-        if (isCallerSafetyNet() || sIsFinsky) {
-            dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
-            throw new UnsupportedOperationException();
-        }
     }
 
     public static boolean hasSystemFeature(String name, boolean has) {
