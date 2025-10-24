@@ -25,6 +25,7 @@ import android.hardware.security.keymint.HardwareAuthenticatorType;
 import android.hardware.security.keymint.KeyParameter;
 import android.hardware.security.keymint.SecurityLevel;
 import android.os.StrictMode;
+import android.os.SystemProperties;
 import android.security.Flags;
 import android.security.GateKeeper;
 import android.security.KeyStore2;
@@ -48,6 +49,8 @@ import android.system.keystore2.ResponseCode;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.yaap.KeyProviderManager;
+import com.android.internal.util.yaap.PixelPropsUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -116,6 +119,8 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
     private KeyStore2 mKeyStore;
     private @KeyProperties.Namespace int mNamespace = KeyProperties.NAMESPACE_APPLICATION;
 
+    private static final String SPOOF_PIXEL_GMS_CERT_CHAIN = "persist.sys.pixelprops.gmscertchain";
+
     @Override
     public Key engineGetKey(String alias, char[] password) throws NoSuchAlgorithmException,
             UnrecoverableKeyException {
@@ -178,6 +183,19 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
 
     @Override
     public Certificate[] engineGetCertificateChain(String alias) {
+        if (PixelPropsUtils.getIsEnabled()) {
+            final boolean shouldBlockKeyAttestation =
+                    SystemProperties.getBoolean(SPOOF_PIXEL_GMS_CERT_CHAIN, false)
+                        && KeyProviderManager.isKeyboxAvailable();
+            if (shouldBlockKeyAttestation && PixelPropsUtils.getIsFinsky()) {
+                for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+                    if (ste.getClassName().contains("DroidGuard")) {
+                        throw new UnsupportedOperationException("Blocking safetynet attestation");
+                    }
+                }
+            }
+        }
+
         KeyEntryResponse response = getKeyMetadata(alias);
 
         if (response == null || response.metadata.certificate == null) {

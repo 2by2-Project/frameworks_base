@@ -48,6 +48,7 @@ public final class PixelPropsUtils {
         finskyProps.add(VERSION_PREFIX + "DEVICE_INITIAL_SDK_INT");
     }
 
+    private static volatile boolean sIsFinsky = false;
     private static volatile boolean sIsEnabled = false;
 
     private static PixelPropsUtils sInstance = null;
@@ -145,12 +146,12 @@ public final class PixelPropsUtils {
             return;
         }
         Logger.d("Package = " + packageName);
-        final boolean isFinsky = PACKAGE_FINSKY.equals(packageName);
-        if (!isFinsky && (!PACKAGE_GMS.equals(packageName) ||
+        sIsFinsky = PACKAGE_FINSKY.equals(packageName);
+        if (!sIsFinsky && (!PACKAGE_GMS.equals(packageName) ||
                 !PROCESS_GMS_UNSTABLE.equals(Application.getProcessName()))) {
             return;
         }
-        if (isFinsky) {
+        if (sIsFinsky) {
             certifiedProps.forEach((key, value) -> {
                 if (!finskyProps.contains(key)) return; // ≣ continue
                 PixelPropsUtils.setPropValue(key, value);
@@ -176,6 +177,10 @@ public final class PixelPropsUtils {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             Logger.e("Failed to set prop " + key, e);
         }
+    }
+
+    public static boolean getIsFinsky() {
+        return sIsFinsky;
     }
 
     public static boolean getIsEnabled() {
